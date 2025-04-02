@@ -3,7 +3,7 @@
  * https://jazz.tools/docs/react/schemas/covalues
  */
 
-import { Account, CoMap, Group, Profile, co } from "jazz-tools";
+import { Account, CoList, CoMap, Group, Profile, co } from "jazz-tools";
 
 /** The account profile is an app-specific per-user public `CoMap`
  *  where you can store top-level objects for that user */
@@ -17,10 +17,29 @@ export class JazzProfile extends Profile {
   // Add public fields here
 }
 
+/**
+ * Dog profile for the Doggie Dating app
+ */
+export class DogProfile extends CoMap {
+  name = co.string;
+  breed = co.string;
+  age = co.number;
+  gender = co.literal("male", "female", "unknown");
+  interests = co.array(co.string); // e.g. ["tag", "ball", "chase"]
+}
+
+// List of dog profiles
+export class DogList extends CoList<DogProfile> {
+  static itemType = DogProfile;
+}
+
 /** The account root is an app-specific per-user private `CoMap`
  *  where you can store top-level objects for that user */
 export class AccountRoot extends CoMap {
   dateOfBirth = co.Date;
+  
+  // User's dogs
+  myDogs = co.ref(DogList);
 
   // Add private fields here
 
@@ -45,9 +64,23 @@ export class JazzAccount extends Account {
       this.root = AccountRoot.create(
         {
           dateOfBirth: new Date("1/1/1990"),
+          myDogs: DogList.create({}),
         },
         group,
       );
+      
+      // Add a sample dog for testing
+      const sampleDog = DogProfile.create({
+        name: "Buddy",
+        breed: "Golden Retriever",
+        age: 3,
+        gender: "male",
+        interests: ["ball", "swimming", "fetch"],
+      });
+      
+      if (this.root.myDogs) {
+        this.root.myDogs.push(sampleDog);
+      }
     }
 
     if (this.profile === undefined) {

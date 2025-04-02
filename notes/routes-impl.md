@@ -9,21 +9,93 @@ This plan focuses only on setting up the basic scaffold for the Doggie Dating ap
 Update `schema.ts` with minimal dog profile structure:
 
 ```typescript
-// Basic dog profile schema
+import { Account, CoList, CoMap, Group, Profile, co } from "jazz-tools";
+
+// Proper CoList classes
+export class ListOfDogs extends CoList.Of(co.ref(DogProfile)) {}
+export class ListOfComments extends CoList.Of(co.ref(Comment)) {}
+
+// Dog profile schema
 export class DogProfile extends CoMap {
   name = co.string;
   breed = co.string;
   age = co.number;
   gender = co.literal("male", "female", "unknown");
-  interests = co.list(co.string);
+  comments = co.ref(ListOfComments);
+  isAtPark = co.boolean;
 }
 
-// Update the account root
+// Comment schema for dog profiles
+export class Comment extends CoMap {
+  text = co.string;
+  timestamp = co.Date;
+}
+
+// Container for dogs following Jazz patterns
+export class DogContainer extends CoMap {
+  dogs = co.ref(ListOfDogs);
+}
+
+// Account root following Jazz rules
 export class AccountRoot extends CoMap {
-  dateOfBirth = co.Date;
-  
-  // User's dogs
-  myDogs = co.list(co.ref(DogProfile));
+  container = co.ref(DogContainer);
+  version = co.optional.number;
+}
+
+// User profile with validation
+export class UserProfile extends Profile {
+  name = co.string;
+
+  static validate(data: { name?: string; email?: string }) {
+    const errors: string[] = [];
+    if (!data.name?.trim()) {
+      errors.push("Please enter a name.");
+    }
+    if (!data.email?.trim()) {
+      errors.push("Please enter an email.");
+    }
+    return { errors };
+  }
+}
+
+// Account with proper migration
+export class JazzAccount extends Account {
+  profile = co.ref(UserProfile);
+  root = co.ref(AccountRoot);
+
+  async migrate(creationProps?: { name: string }) {
+    if (this.root === undefined) {
+      // Create container with proper group ownership
+      const containerGroup = Group.create();
+      const defaultContainer = DogContainer.create({
+        dogs: ListOfDogs.create([], containerGroup)
+      }, containerGroup);
+
+      // Initialize root owned by account
+      this.root = AccountRoot.create(
+        { container: defaultContainer, version: 0 },
+        { owner: this }
+      );
+    }
+
+    if (this.profile === undefined && creationProps?.name) {
+      // Create public profile
+      const publicGroup = Group.create();
+      publicGroup.addMember("everyone", "reader");
+      
+      this.profile = UserProfile.create(
+        { name: creationProps.name },
+        publicGroup
+      );
+    }
+  }
+}
+
+// Register account schema
+declare module "jazz-react" {
+  interface Register {
+    Account: JazzAccount;
+  }
 }
 ```
 
