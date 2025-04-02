@@ -1,6 +1,7 @@
 import { JazzProvider } from "jazz-react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
 import { apiKey } from "./apiKey.ts";
@@ -17,13 +18,15 @@ declare module "jazz-react" {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <JazzProvider
-      sync={{
-        peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
-      }}
-      AccountSchema={JazzAccount}
-    >
-      <App />
-    </JazzProvider>
+    <BrowserRouter>
+      <JazzProvider
+        sync={{
+          peer: `wss://cloud.jazz.tools/?key=${apiKey}`,
+        }}
+        AccountSchema={JazzAccount}
+      >
+        <App />
+      </JazzProvider>
+    </BrowserRouter>
   </StrictMode>,
 );

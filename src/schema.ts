@@ -25,13 +25,12 @@ export class DogProfile extends CoMap {
   breed = co.string;
   age = co.number;
   gender = co.literal("male", "female", "unknown");
-  interests = co.array(co.string); // e.g. ["tag", "ball", "chase"]
+  // Dog interests like ball, swimming, chase
+  interests = co.string; // We'll store as comma-separated string for now
 }
 
 // List of dog profiles
-export class DogList extends CoList<DogProfile> {
-  static itemType = DogProfile;
-}
+export class DogProfileList extends CoList.Of(co.ref(DogProfile)) {}
 
 /** The account root is an app-specific per-user private `CoMap`
  *  where you can store top-level objects for that user */
@@ -39,7 +38,7 @@ export class AccountRoot extends CoMap {
   dateOfBirth = co.Date;
   
   // User's dogs
-  myDogs = co.ref(DogList);
+  myDogs = co.ref(DogProfileList);
 
   // Add private fields here
 
@@ -64,7 +63,7 @@ export class JazzAccount extends Account {
       this.root = AccountRoot.create(
         {
           dateOfBirth: new Date("1/1/1990"),
-          myDogs: DogList.create({}),
+          myDogs: DogProfileList.create([]),
         },
         group,
       );
@@ -75,7 +74,7 @@ export class JazzAccount extends Account {
         breed: "Golden Retriever",
         age: 3,
         gender: "male",
-        interests: ["ball", "swimming", "fetch"],
+        interests: "ball, swimming, fetch",
       });
       
       if (this.root.myDogs) {
