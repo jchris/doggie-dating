@@ -1,6 +1,8 @@
 import { Link, useParams } from 'react-router-dom';
 import { useAccount, useCoState } from 'jazz-react';
 import { DogProfile } from '../schema';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function DogProfilePage() {
   const { dogId } = useParams<{ dogId: string }>();
@@ -24,17 +26,16 @@ export default function DogProfilePage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">{dog.name}'s Profile</h1>
           {isOwner && (
-            <Link 
-              to={`/dog/${dogId}/edit`}
-              className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition"
-            >
-              Edit Profile
-            </Link>
+            <Button variant="outline" asChild>
+              <Link to={`/dog/${dogId}/edit`}>
+                Edit Profile
+              </Link>
+            </Button>
           )}
         </div>
         
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="p-6">
+        <Card className="overflow-hidden">
+          <CardContent className="p-6 pt-6">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="md:w-1/3 flex-shrink-0">
                 {dog.image ? (
@@ -44,8 +45,8 @@ export default function DogProfilePage() {
                     className="w-full aspect-square object-cover rounded-lg" 
                   />
                 ) : (
-                  <div className="bg-gray-200 rounded-lg aspect-square flex items-center justify-center">
-                    <span className="text-gray-500">No Photo</span>
+                  <div className="bg-[#FDFBEE] rounded-lg aspect-square flex items-center justify-center">
+                    <span className="text-muted-foreground">No Photo</span>
                   </div>
                 )}
               </div>
@@ -76,43 +77,56 @@ export default function DogProfilePage() {
             </div>
             
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Friends</h2>
-              <div className="bg-gray-50 py-8 text-center rounded">
-                <p className="text-gray-500">No friends added yet</p>
-              </div>
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-xl">Friends</CardTitle>
+              </CardHeader>
+              <Card className="bg-accent/50">
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">No friends added yet</p>
+                </CardContent>
+              </Card>
             </div>
             
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Comments</h2>
-              <div className="bg-gray-50 py-8 text-center rounded">
-                <p className="text-gray-500">No comments yet</p>
-              </div>
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-xl">Comments</CardTitle>
+              </CardHeader>
+              <Card className="bg-accent/50">
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">No comments yet</p>
+                </CardContent>
+              </Card>
             </div>
             
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Share Profile</h2>
-              <div className="bg-gray-50 p-8 text-center rounded">
-                <div className="bg-white inline-block p-4 border rounded">
-                  <p className="mb-2">QR Code will appear here</p>
-                </div>
-                <p className="mt-4 text-gray-500">Scan to view {dog.name}'s profile</p>
-              </div>
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-xl">Share Profile</CardTitle>
+              </CardHeader>
+              <Card className="bg-accent/50">
+                <CardContent className="p-8 text-center">
+                  <div className="bg-white inline-block p-4 border rounded">
+                    <p className="mb-2">QR Code will appear here</p>
+                  </div>
+                  <p className="mt-4 text-muted-foreground">Scan to view {dog.name}'s profile</p>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
         
         <div className="mt-6 flex justify-between">
-          <Link to="/home" className="text-indigo-600 hover:underline">
-            &larr; Back to My Dogs
-          </Link>
+          <Button variant="ghost" className="text-[#57B4BA] hover:text-[#57B4BA]/90 p-0" asChild>
+            <Link to="/home">
+              &larr; Back to My Dogs
+            </Link>
+          </Button>
           
           {isOwner && (
-            <Link 
-              to={`/dog/${dogId}/connections`}
-              className="text-indigo-600 hover:underline"
-            >
-              Manage Connections &rarr;
-            </Link>
+            <Button variant="ghost" className="text-[#57B4BA] hover:text-[#57B4BA]/90 p-0" asChild>
+              <Link to={`/dog/${dogId}/connections`}>
+                Manage Connections &rarr;
+              </Link>
+            </Button>
           )}
         </div>
       </div>

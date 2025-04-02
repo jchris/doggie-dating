@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useIsAuthenticated } from "jazz-react";
+import { useIsAuthenticated, useAccount } from "jazz-react";
+import { useEffect } from "react";
+import { createDemoDogProfiles } from "./utils/demoData";
 
 // Components
 import { Header } from "./components/Header";
@@ -23,6 +25,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const { me } = useAccount({ resolve: { root: { myDogs: { $each: true } } } });
+  
+  // Initialize demo data when the user logs in and has no dogs
+  useEffect(() => {
+    if (me) {
+      createDemoDogProfiles(me);
+    }
+  }, [me]);
+  
   return (
     <div className="min-h-screen bg-[#FDFBEE] bg-opacity-30">
       <Header />

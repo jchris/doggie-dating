@@ -1,7 +1,10 @@
 import { useState, useRef } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAccount, useCoState } from 'jazz-react';
 import { DogProfile } from '../schema';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function CreateEditDogPage() {
   const { dogId } = useParams<{ dogId: string }>();
@@ -71,18 +74,23 @@ export default function CreateEditDogPage() {
           {isEditMode ? `Edit ${existingDog?.name}'s Profile` : 'Add a New Dog'}
         </h1>
         
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{isEditMode ? `Edit ${existingDog?.name}'s Profile` : 'Add a New Dog'}</CardTitle>
+            <CardDescription>Fill in the details about your dog. All fields are optional.</CardDescription>
+          </CardHeader>
+          <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                 Name
               </label>
-              <input
+              <Input
                 id="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
               />
             </div>
             
@@ -90,12 +98,11 @@ export default function CreateEditDogPage() {
               <label htmlFor="breed" className="block text-sm font-medium text-gray-700 mb-1">
                 Breed
               </label>
-              <input
+              <Input
                 id="breed"
                 type="text"
                 value={breed}
                 onChange={(e) => setBreed(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
               />
             </div>
             
@@ -103,13 +110,12 @@ export default function CreateEditDogPage() {
               <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
                 Age
               </label>
-              <input
+              <Input
                 id="age"
                 type="number"
                 min="0"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
               />
             </div>
             
@@ -121,7 +127,7 @@ export default function CreateEditDogPage() {
                 id="gender"
                 value={gender}
                 onChange={(e) => setGender(e.target.value as "male" | "female" | "unknown")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#57B4BA] focus-visible:ring-offset-2"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -133,13 +139,12 @@ export default function CreateEditDogPage() {
               <label htmlFor="interests" className="block text-sm font-medium text-gray-700 mb-1">
                 Interests (comma separated)
               </label>
-              <input
+              <Input
                 id="interests"
                 type="text"
                 placeholder="ball, swimming, fetch"
                 value={interests}
                 onChange={(e) => setInterests(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
               />
             </div>
           </div>
@@ -166,31 +171,34 @@ export default function CreateEditDogPage() {
                 onChange={handleImageUpload}
                 className="hidden"
               />
-              <button
+              <Button
                 type="button"
+                variant="teal"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 bg-[#57B4BA] text-white rounded-md hover:bg-opacity-90 transition"
               >
                 {image ? 'Change Image' : 'Upload Image'}
-              </button>
+              </Button>
             </div>
           </div>
           
-          <div className="mt-8 flex justify-end gap-3">
-            <Link
-              to={isEditMode ? `/dog/${dogId}` : '/home'}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-[#015551] text-white rounded-md hover:bg-opacity-90 transition"
-            >
-              {isEditMode ? 'Save Changes' : 'Create Profile'}
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-3 pt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate(isEditMode ? `/dog/${dogId}` : '/home')}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="darkTeal"
+              >
+                {isEditMode ? 'Save Changes' : 'Create Profile'}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
       </div>
     </div>
   );
