@@ -1,54 +1,63 @@
-import { useAccount, useIsAuthenticated } from "jazz-react";
-import { AuthButton } from "./AuthButton.tsx";
-import { Form } from "./Form.tsx";
-import { Logo } from "./Logo.tsx";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useIsAuthenticated } from "jazz-react";
+
+// Components
+import { Header } from "./components/Header";
+
+// Pages
+import SplashPage from "./pages/SplashPage";
+import HomePage from "./pages/HomePage";
+import DogProfilePage from "./pages/DogProfilePage";
+import CreateEditDogPage from "./pages/CreateEditDogPage";
+import ConnectionsPage from "./pages/ConnectionsPage";
+
+// Authenticated route wrapper
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = useIsAuthenticated();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
+}
 
 function App() {
-  const { me } = useAccount({ resolve: { profile: true, root: true } });
-
-  const isAuthenticated = useIsAuthenticated();
-
   return (
-    <>
-      <header>
-        <nav className="container flex justify-between items-center py-3">
-          {isAuthenticated ? (
-            <span>You're logged in.</span>
-          ) : (
-            <span>Authenticate to share the data with another device.</span>
-          )}
-          <AuthButton />
-        </nav>
-      </header>
-      <main className="container mt-16 flex flex-col gap-8">
-        <Logo />
-
-        <div className="text-center">
-          <h1>
-            Welcome{me?.profile.firstName ? <>, {me?.profile.firstName}</> : ""}
-            !
-          </h1>
-          {!!me?.root.age && (
-            <p>As of today, you are {me.root.age} years old.</p>
-          )}
-        </div>
-
-        <Form />
-
-        <p className="text-center">
-          Edit the form above,{" "}
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="font-semibold underline"
-          >
-            refresh
-          </button>{" "}
-          this page, and see your changes persist.
-        </p>
-
-        <p className="text-center">
-          Edit <code className="font-semibold">schema.ts</code> to add more
+    <div className="min-h-screen bg-[#FDFBEE] bg-opacity-30">
+      <Header />
+      
+      <main>
+        <Routes>
+          <Route path="/" element={<SplashPage />} />
+          
+          <Route path="/home" element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dog/:dogId" element={<DogProfilePage />} />
+          
+          <Route path="/dog/new" element={
+            <ProtectedRoute>
+              <CreateEditDogPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dog/:dogId/edit" element={
+            <ProtectedRoute>
+              <CreateEditDogPage />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dog/:dogId/connections" element={
+            <ProtectedRoute>
+              <ConnectionsPage />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </main>
           fields.
         </p>
 
