@@ -4,7 +4,8 @@ import { DogProfile } from '../schema';
 
 export default function ConnectionsPage() {
   const { dogId } = useParams<{ dogId: string }>();
-  const dog = useCoState(DogProfile, dogId);
+  // Cast the string ID to the proper Jazz ID type
+  const dog = useCoState(DogProfile, dogId as any);
   const { me } = useAccount({ resolve: { root: { myDogs: { $each: true } } } });
   
   // Check if current user is the owner of this dog
