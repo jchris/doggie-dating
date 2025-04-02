@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAccount, useCoState } from 'jazz-react';
 import { DogProfile } from '../schema';
@@ -8,7 +8,7 @@ export default function CreateEditDogPage() {
   const navigate = useNavigate();
   const isEditMode = !!dogId;
   
-  const existingDog = useCoState(DogProfile, dogId);
+  const existingDog = useCoState(DogProfile, dogId as any);
   const { me } = useAccount({ resolve: { root: { myDogs: true } } });
   
   const [name, setName] = useState(existingDog?.name || '');
@@ -16,7 +16,21 @@ export default function CreateEditDogPage() {
   const [age, setAge] = useState(existingDog?.age?.toString() || '');
   const [gender, setGender] = useState(existingDog?.gender || 'unknown');
   const [interests, setInterests] = useState(existingDog?.interests || '');
+  const [image, setImage] = useState(existingDog?.image || '');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setImage(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -28,9 +42,10 @@ export default function CreateEditDogPage() {
       // Update existing dog
       existingDog.name = name;
       existingDog.breed = breed;
-      existingDog.age = Number(age);
+      existingDog.age = age ? Number(age) : 0;
       existingDog.gender = gender as "male" | "female" | "unknown";
       existingDog.interests = interests;
+      existingDog.image = image;
       
       navigate(`/dog/${dogId}`);
     } else {
@@ -38,9 +53,10 @@ export default function CreateEditDogPage() {
       const newDog = DogProfile.create({
         name,
         breed,
-        age: Number(age),
+        age: age ? Number(age) : 0,
         gender: gender as "male" | "female" | "unknown",
         interests,
+        image,
       });
       
       me.root.myDogs.push(newDog);
@@ -64,7 +80,6 @@ export default function CreateEditDogPage() {
               <input
                 id="name"
                 type="text"
-                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
@@ -78,7 +93,6 @@ export default function CreateEditDogPage() {
               <input
                 id="breed"
                 type="text"
-                required
                 value={breed}
                 onChange={(e) => setBreed(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
@@ -93,7 +107,6 @@ export default function CreateEditDogPage() {
                 id="age"
                 type="number"
                 min="0"
-                required
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
@@ -107,7 +120,7 @@ export default function CreateEditDogPage() {
               <select
                 id="gender"
                 value={gender}
-                onChange={(e) => setGender(e.target.value)}
+                onChange={(e) => setGender(e.target.value as "male" | "female" | "unknown")}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
               >
                 <option value="male">Male</option>
@@ -128,6 +141,38 @@ export default function CreateEditDogPage() {
                 onChange={(e) => setInterests(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#57B4BA]"
               />
+            </div>
+          </div>
+          
+          <div>
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
+              Upload Profile Image
+            </label>
+            <div className="flex flex-col gap-3">
+              {image && (
+                <div className="flex justify-center">
+                  <img 
+                    src={image} 
+                    alt="Dog preview" 
+                    className="w-48 h-48 object-cover rounded-lg border-2 border-[#57B4BA]" 
+                  />
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-4 py-2 bg-[#57B4BA] text-white rounded-md hover:bg-opacity-90 transition"
+              >
+                {image ? 'Change Image' : 'Upload Image'}
+              </button>
             </div>
           </div>
           

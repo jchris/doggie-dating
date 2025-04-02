@@ -27,6 +27,8 @@ export class DogProfile extends CoMap {
   gender = co.literal("male", "female", "unknown");
   // Dog interests like ball, swimming, chase
   interests = co.string; // We'll store as comma-separated string for now
+  // Store image as a data URL
+  image = co.string;
 }
 
 // List of dog profiles
@@ -75,6 +77,7 @@ export class JazzAccount extends Account {
         age: 3,
         gender: "male",
         interests: "ball, swimming, fetch",
+        image: "", // Initialize with empty string
       });
       
       if (this.root.myDogs) {

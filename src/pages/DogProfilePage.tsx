@@ -4,7 +4,7 @@ import { DogProfile } from '../schema';
 
 export default function DogProfilePage() {
   const { dogId } = useParams<{ dogId: string }>();
-  const dog = useCoState(DogProfile, dogId);
+  const dog = useCoState(DogProfile, dogId as any);
   const { me } = useAccount({ resolve: { root: { myDogs: { $each: true } } } });
   
   // Check if current user is the owner of this dog
@@ -37,9 +37,17 @@ export default function DogProfilePage() {
           <div className="p-6">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="md:w-1/3 flex-shrink-0">
-                <div className="bg-gray-200 rounded-lg aspect-square flex items-center justify-center">
-                  <span className="text-gray-500">No Photo</span>
-                </div>
+                {dog.image ? (
+                  <img 
+                    src={dog.image} 
+                    alt={dog.name} 
+                    className="w-full aspect-square object-cover rounded-lg" 
+                  />
+                ) : (
+                  <div className="bg-gray-200 rounded-lg aspect-square flex items-center justify-center">
+                    <span className="text-gray-500">No Photo</span>
+                  </div>
+                )}
               </div>
               
               <div className="md:w-2/3">
