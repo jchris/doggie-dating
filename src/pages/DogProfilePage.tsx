@@ -3,11 +3,21 @@ import { useAccount, useCoState } from 'jazz-react';
 import { DogProfile } from '../schema';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { QRCodeSVG } from 'qrcode.react';
+import { useEffect, useState } from 'react';
 
 export default function DogProfilePage() {
   const { dogId } = useParams<{ dogId: string }>();
   const dog = useCoState(DogProfile, dogId as any);
   const { me } = useAccount({ resolve: { root: { myDogs: { $each: true } } } });
+  const [dogProfileUrl, setDogProfileUrl] = useState('');
+  
+  // Set the dog profile URL for QR code
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setDogProfileUrl(window.location.href);
+    }
+  }, [dogId]);
   
   // Check if current user is the owner of this dog
   const isOwner = me?.root.myDogs?.some(myDog => myDog.id === dogId);
@@ -105,9 +115,19 @@ export default function DogProfilePage() {
               <Card className="bg-accent/50">
                 <CardContent className="p-8 text-center">
                   <div className="bg-white inline-block p-4 border rounded">
-                    <p className="mb-2">QR Code will appear here</p>
+                    {dogProfileUrl && (
+                      <QRCodeSVG 
+                        value={dogProfileUrl} 
+                        size={150}
+                        bgColor="#FFFFFF"
+                        fgColor="#015551"
+                        level="L"
+                        includeMargin={false}
+                      />
+                    )}
                   </div>
                   <p className="mt-4 text-muted-foreground">Scan to view {dog.name}'s profile</p>
+                  <p className="mt-2 text-xs text-muted-foreground break-all">{dogProfileUrl}</p>
                 </CardContent>
               </Card>
             </div>
